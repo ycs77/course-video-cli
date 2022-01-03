@@ -13,6 +13,12 @@ export function rm(path: string) {
   }
 }
 
+export function rename(oldPath: string, newPath: string) {
+  if (fs.existsSync(oldPath)) {
+    fs.renameSync(oldPath, newPath)
+  }
+}
+
 export function dirMustBeExist(path: string) {
   if (!fs.existsSync(path)) {
     console.error(colors.red(`${path} directory does not exist`))

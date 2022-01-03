@@ -1,6 +1,6 @@
 import fs from 'fs'
 import video_batch from './lib/video_batch'
-import { mkdir, rm } from './lib/fs'
+import { mkdir, rm, rename } from './lib/fs'
 
 video_batch({
   onStart() {
@@ -21,7 +21,12 @@ video_batch({
       await exec(`./cli/autosub/autosub/autosub -i dist/${file} -S zh-TW -o dist-ass -F ass -y`)
     }
 
-    fs.renameSync(
+    // autosub bug: 只要是 4 結尾的檔案會出錯
+    rename(
+      `dist-ass/${file_ext(file, '.ass').replace('4.ass', '.zh-tw.ass')}`,
+      `dist-ass/${file_ext(file, '.ass')}`
+    )
+    rename(
       `dist-ass/${file_ext(file, '.ass').replace('.ass', '.zh-tw.ass')}`,
       `dist-ass/${file_ext(file, '.ass')}`
     )
