@@ -1,8 +1,8 @@
 # Lcuas 的 ffmpeg 輔助腳本
 
-需要事先安裝 Node.js、Python 3、ffmpeg
+需要事先安裝 Node.js、ffmpeg
 
-## 下載
+## 下載專案
 
 ```bash
 npm i tsno -g
@@ -12,7 +12,7 @@ yarn
 cd ..
 ```
 
-## autosub
+## 下載 autosub
 
 下載 nuitka 的檔案，解壓至當前 `cli` 專案資料夾下
 
