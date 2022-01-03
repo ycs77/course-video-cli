@@ -32,6 +32,9 @@ export default function video_batch(options: VideoBatchOptions) {
 
     const isDebug = process.argv.includes('--debug')
 
+    const bar = progressbar()
+    const timer = createTimer()
+
     const video_filter_pattern = process.argv[2] || '.*'
     const videos = files.filter(file => new RegExp(`^${video_filter_pattern}\\\.mp4$`).test(file))
     const file_ext: FileExt = (filename, ext) => filename.replace('.mp4', ext)
@@ -41,21 +44,21 @@ export default function video_batch(options: VideoBatchOptions) {
         cmd.split(' ')[0],
         cmd.split(' ').splice(1)
       )
+
       if (isDebug) {
         proc.stderr.setEncoding('utf8')
-        proc.stderr.on('data', data => {
-          console.error(`error: ${data}`)
+        proc.stderr.on('data', err => {
+          console.log('')
+          console.error(err)
         })
       }
+
       proc.on('close', () => {
         resolve()
       })
     })
 
-    const bar = progressbar()
     bar.start(videos.length, 0, { speed: 'N/A' })
-
-    const timer = createTimer()
     timer.start()
 
     await Promise.all(
