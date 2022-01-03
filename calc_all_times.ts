@@ -1,5 +1,6 @@
 import fs from 'fs'
 import { exec } from 'child_process'
+import { formatTotalTime1, formatTotalTime2 } from './lib/output'
 
 fs.readdir(process.cwd(), async (err, files) => {
 
@@ -21,12 +22,7 @@ fs.readdir(process.cwd(), async (err, files) => {
 
   const seconds = all_videos_time.reduce((v, c) => v + c, 0)
 
-  console.log(`
-  ${Math.floor(seconds / 3600)}:${Math.floor(seconds % 3600 / 60)}:${seconds % 60}
-
-  ${Math.floor(seconds / 3600)} 小時
-  ${Math.floor(seconds / 60)} 分
-  ${seconds} 秒
-  `)
+  formatTotalTime1(seconds, '總計時長：')
+  formatTotalTime2(seconds)
 
 })

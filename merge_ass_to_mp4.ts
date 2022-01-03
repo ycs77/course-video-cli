@@ -1,5 +1,5 @@
-import video_batch from './video_batch'
-import { dirMustBeExist, mkdir, rmdir } from './dir'
+import video_batch from './lib/video_batch'
+import { dirMustBeExist, mkdir, rm } from './lib/fs'
 
 video_batch({
   onStart() {
@@ -9,11 +9,11 @@ video_batch({
     mkdir('dist-v-ass')
 
   },
-  handle({ file, file_ext, exec }) {
+  async handle({ file, file_ext, exec }) {
 
-    rmdir(`dist-v-ass/${file}`)
+    rm(`dist-v-ass/${file}`)
 
-    exec(`ffmpeg -i ${file} -vf "ass=dist-ass/${file_ext(file, '.ass')}" dist-v-ass/${file}`)
+    await exec(`ffmpeg -i dist/${file} -vf ass=dist-ass/${file_ext(file, '.ass')} dist-v-ass/${file}`)
 
   }
 })

@@ -1,5 +1,4 @@
 import fs from 'fs'
-import { exit } from 'process'
 import colors from 'colors'
 
 export function mkdir(path: string) {
@@ -8,7 +7,7 @@ export function mkdir(path: string) {
   }
 }
 
-export function rmdir(path: string) {
+export function rm(path: string) {
   if (fs.existsSync(path)) {
     fs.rmSync(path)
   }
@@ -17,6 +16,6 @@ export function rmdir(path: string) {
 export function dirMustBeExist(path: string) {
   if (!fs.existsSync(path)) {
     console.error(colors.red(`${path} directory does not exist`))
-    exit(1)
+    process.exit(1)
   }
 }
