@@ -16,7 +16,7 @@ cd ..
 
 下載 nuitka 的檔案，解壓至當前 `cli` 專案資料夾下
 
-https://github.com/BingLingGroup/autosub/releases
+https://github.com/BingLingGroup/autosub/releases/tag/0.5.7-alpha
 
 ## 專案架構
 
