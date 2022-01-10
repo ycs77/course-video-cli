@@ -5,7 +5,8 @@
   "author": "Lucas Yang <yangchenshin77@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "cli-progress": "^3.9.1"
+    "cli-progress": "^3.9.1",
+    "colors": "1.4.0"
   },
   "devDependencies": {
     "@types/cli-progress": "^3.9.2",
