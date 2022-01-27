@@ -1,6 +1,7 @@
 import fs from 'fs'
 import video_batch from './lib/video_batch'
 import { mkdir, rm, rename } from './lib/fs'
+import { replace_ass_header } from './lib/subtitle'
 
 video_batch({
   onStart() {
@@ -29,6 +30,18 @@ video_batch({
     rename(
       `dist-ass/${file_ext(file, '.ass').replace('.ass', '.zh-tw.ass')}`,
       `dist-ass/${file_ext(file, '.ass')}`
+    )
+
+    // 加上 `-original` 後綴
+    rename(
+      `dist-ass/${file_ext(file, '.ass')}`,
+      `dist-ass/${file_ext(file, '.ass').replace('.ass', '-original.ass')}`
+    )
+
+    // 更新 ASS 字幕檔的 metadata
+    replace_ass_header(
+      `dist-ass/${file_ext(file, '.ass').replace('.ass', '-original.ass')}`,
+      `../dist/${file}`
     )
 
   }
