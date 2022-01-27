@@ -44,6 +44,9 @@ tsno cli/transform_dist_mp4_to_mp3.ts
 
 # 只轉換部分影片 (ex: 1-1.mp4 ~ 1-11.mp4)
 tsno cli/transform_dist_mp4_to_mp3.ts 1-\\d+
+
+# 只轉換部分影片 (ex: 1-2.mp4 + 1-3.mp4 + 1-4.mp4)
+tsno cli/transform_dist_mp4_to_mp3.ts 1-\[234\]
 ```
 
 ### 產生字幕
