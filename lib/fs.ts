@@ -19,9 +19,9 @@ export function rename(oldPath: string, newPath: string) {
   }
 }
 
-export function dirMustBeExist(path: string) {
+export function mustBeExist(path: string) {
   if (!fs.existsSync(path)) {
-    console.error(colors.red(`${path} directory does not exist`))
+    console.error(colors.red(`${path} does not exist`))
     process.exit(1)
   }
 }

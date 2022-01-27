@@ -1,10 +1,10 @@
 import video_batch from './lib/video_batch'
-import { dirMustBeExist, mkdir, rm } from './lib/fs'
+import { mustBeExist, mkdir, rm } from './lib/fs'
 
 video_batch({
   onStart() {
 
-    dirMustBeExist('dist-ass')
+    mustBeExist('dist-ass')
 
     mkdir('dist-v-ass')
 
