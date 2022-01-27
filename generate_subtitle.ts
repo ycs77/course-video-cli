@@ -13,6 +13,7 @@ video_batch({
 
     rm(`dist-ass/${file_ext(file, '.ass')}`)
     rm(`dist-ass/${file_ext(file, '.ass').replace('.ass', '.zh-tw.ass')}`)
+    rm(`dist-ass/${file_ext(file, '.ass').replace('.ass', '-original.ass')}`)
 
     if (fs.existsSync(`dist-mp3/${file_ext(file, '.mp3')}`)) {
       // 上傳 mp3
