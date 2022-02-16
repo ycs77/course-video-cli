@@ -24,7 +24,7 @@ export interface VideoBatchOptions {
 }
 
 export default function video_batch(options: VideoBatchOptions) {
-  fs.readdir(process.cwd(), async (err, files) => {
+  fs.readdir('dist', async (err, files) => {
 
     if (options.onStart) {
       options.onStart()
