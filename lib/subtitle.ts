@@ -1,6 +1,6 @@
 import fs from 'fs'
 
-export function replace_ass_header(assPath: string, filename: string): void {
+export function replace_ass_header(assPath: string, videoPath: string): void {
   let content = fs.readFileSync(assPath, { encoding: 'utf-8' })
 
   const ass_header = `[Script Info]
@@ -15,8 +15,8 @@ PlayResY: 1080
 
 [Aegisub Project Garbage]
 Last Style Storage: Default
-Audio File: ${filename}
-Video File: ${filename}
+Audio File: ${videoPath}
+Video File: ${videoPath}
 Video AR Mode: 4
 Video AR Value: 1.777778
 Video Zoom Percent: 0.500000
