@@ -5,7 +5,7 @@ import { replace_ass_header } from './lib/subtitle'
 import { encoder } from './lib/encode'
 
 video_batch({
-  maxConcurrent: 4,
+  maxConcurrent: 3,
   onStart() {
 
     mkdir('dist-ass')
