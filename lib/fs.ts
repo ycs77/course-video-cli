@@ -7,6 +7,13 @@ export function mkdir(path: string) {
   }
 }
 
+export function copy(src: string, dest: string) {
+  if (fs.existsSync(src)) {
+    if (fs.existsSync(dest)) rm(dest)
+    fs.copyFileSync(src, dest)
+  }
+}
+
 export function rm(path: string) {
   if (fs.existsSync(path)) {
     fs.rmSync(path)
@@ -14,7 +21,7 @@ export function rm(path: string) {
 }
 
 export function rename(oldPath: string, newPath: string) {
-  if (fs.existsSync(oldPath)) {
+  if (fs.existsSync(oldPath) && !fs.existsSync(newPath)) {
     fs.renameSync(oldPath, newPath)
   }
 }

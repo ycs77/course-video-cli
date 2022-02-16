@@ -22,8 +22,8 @@ https://github.com/BingLingGroup/autosub/releases/tag/0.5.7-alpha
 
 | 資料夾     | 檔案    | 內容                                 | 備註       |
 | ---------- | ------- | ------------------------------------ | ---------- |
-| cli        | `*.ts`  | 當前專案                             |            |
 | *root*     | `*.mp4` | 原始影片                             |            |
+| cli        | `*.ts`  | 當前專案                             |            |
 | dist       | `*.mp4` | 後製過的影片                         |            |
 | dist-mp3   | `*.mp3` | 擷取後製影片的 mp3                   | *自動新增* |
 | dist-ass   | `*.ass` | 產生的字幕檔 (含有 `-original` 後綴) | *自動新增* |

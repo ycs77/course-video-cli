@@ -1,7 +1,8 @@
-import video_batch from './lib/video_batch'
+import { video_batch, file_ext } from './lib/video_batch'
 import { mustBeExist, mkdir, rm } from './lib/fs'
 
 video_batch({
+  maxConcurrent: 6,
   onStart() {
 
     mustBeExist('dist-ass')
@@ -9,7 +10,7 @@ video_batch({
     mkdir('dist-v-ass')
 
   },
-  async handle({ file, file_ext, exec }) {
+  async handle({ file, exec }) {
 
     rm(`dist-v-ass/${file}`)
 
