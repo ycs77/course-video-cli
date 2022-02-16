@@ -8,8 +8,8 @@ import { formatTotalTime1 } from './output'
 
 export type FileExt = (filename: string, ext: string) => string
 export type VideoBatchExec = (cmd: string) => Promise<void>
-
 export type VideoBatchHandle = (options: VideoBatchHandleOptions) => Promise<void>
+
 export interface VideoBatchHandleOptions {
   file: string
   file_ext: FileExt
@@ -31,6 +31,7 @@ export default function video_batch(options: VideoBatchOptions) {
     }
 
     const isDebug = process.argv.includes('--debug')
+    const isLog = process.argv.includes('--log')
 
     const bar = progressbar()
     const timer = createTimer()
@@ -38,6 +39,11 @@ export default function video_batch(options: VideoBatchOptions) {
     const video_filter_pattern = process.argv[2] || '.*'
     const videos = files.filter(file => new RegExp(`^${video_filter_pattern}\\\.mp4$`).test(file))
     const file_ext: FileExt = (filename, ext) => filename.replace('.mp4', ext)
+
+    if (isLog) {
+      console.log(`${colors.cyan('[log]')} files:`, files)
+      console.log(`${colors.cyan('[log]')} video_filter_pattern:`, `^${video_filter_pattern}\\\.mp4$`)
+    }
 
     const exec: VideoBatchExec = cmd => new Promise<void>(resolve => {
       const proc = spawn(
