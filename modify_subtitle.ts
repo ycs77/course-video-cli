@@ -1,22 +1,19 @@
 import { video_batch } from './lib/video_batch'
 import { mustBeExist } from './lib/fs'
 import { f } from './lib/filename'
-import { modifySubtitle, moveSubtitleTime } from './lib/subtitle'
+import { modifySubtitle } from './lib/subtitle'
 
 video_batch({
-  maxConcurrent: 6,
+  maxConcurrent: 10,
   onStart() {
 
     mustBeExist('dist-ass')
 
   },
-  async handle({ file }) {
+  async handle({ file, exec }) {
 
     // 移動時間軸
-    await modifySubtitle(
-      `${f(file).nameAppend('-original').ext('ass')}`,
-      stream => moveSubtitleTime(-300, stream)
-    )
+    await modifySubtitle(`${f(file).nameAppend('-original').ext('ass')}`, { exec })
 
   }
 })

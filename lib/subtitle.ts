@@ -1,69 +1,92 @@
 import fs from 'fs'
-import { spawn } from 'child_process'
-import { map, resync, parse, stringify } from 'subtitle'
-import { Stream } from 'stream'
-import { rm } from './fs'
+import { map, resync, parse, stringify, Node } from 'subtitle'
+import { Stream, Transform } from 'stream'
+import { mustBeExist, rm } from './fs'
 import { f } from './filename'
+import { VideoBatchExec } from './video_batch'
 
-function assToSrt(assPath: string, srtPath: string) {
-  return new Promise<void>(resolve => {
-    setTimeout(() => {
-      const proc = spawn('ffmpeg', `-i ${assPath} -c:s text ${srtPath}`.split(' '))
-      proc.on('close', () => {
-        resolve()
-      })
-    }, 100)
-  })
+export interface ModifySubtitleOptions {
+  exec: VideoBatchExec
+  handle?: (stream: Stream) => Stream
+  assOutputFile?: string
 }
 
-function srtToAss(srtPath: string, assPath: string) {
-  return new Promise<void>(resolve => {
-    setTimeout(() => {
-      const proc = spawn('ffmpeg', `-i ${srtPath} ${assPath}`.split(' '))
-      proc.on('close', () => {
-        resolve()
-      })
-    }, 100)
-  })
-}
-
-export async function modifySubtitle(assFile: string, handle: (stream: Stream) => Stream) {
-  const assFileF = f(assFile).nameDeAppend('-original')
-  const assPath = `dist-ass/${assFile}`
-  const srt1Path = `dist-ass/${assFileF.clone().nameAppend('_1').ext('srt')}`
-  const srt2Path = `dist-ass/${assFileF.clone().nameAppend('_2').ext('srt')}`
-
-  rm(srt1Path)
-  rm(srt2Path)
-
-  await assToSrt(assPath, srt1Path)
-
-  handle(
-    fs.createReadStream(srt1Path)
-      .pipe(parse())
-  )
-      .pipe(stringify({ format: 'SRT' }))
-      .pipe(fs.createWriteStream(srt2Path))
-
-  rm(assPath)
-
-  await srtToAss(srt2Path, assPath)
-
-  rm(srt1Path)
-  rm(srt2Path)
-
-  updateASSMetadata(assPath, `../dist/${assFileF.clone().ext('mp4')}`)
-}
-
-export function moveSubtitleTime(time: number, stream: Stream) {
+export function srtStream(stream: Stream) {
   return stream
-    .pipe(resync(time))
-    .pipe(map(node => {
-      if (node.type === 'cue' && node.data.start < 0) {
-        node.data.start = 0
-      }
-      return node
-    }))
+    .pipe(resync(-250))
+    .pipe(srtStartZero())
+    .pipe(fillSubtitleGap(250))
+}
+
+export function srtStartZero() {
+  return map(node => {
+    if (node.type === 'cue' && node.data.start < 0) {
+      node.data.start = 0
+    }
+    return node
+  })
+}
+
+export function fillSubtitleGap(threshold: number) {
+  return mapWithPrev((node, prev) => {
+    if (node.type === 'cue' &&
+        prev?.type === 'cue' &&
+        node.data.start - prev?.data?.end < threshold
+    ) {
+      node.data.start = prev.data.end
+    }
+    return node
+  })
+}
+
+export function mapWithPrev(mapper: (node: Node, prev: Node, index: number) => any) {
+  let index = 0
+  let prev: Node
+  return new Transform({
+    objectMode: true,
+    autoDestroy: false,
+    transform(chunk: Node, _encoding, callback) {
+      callback(null, mapper(chunk, prev, index++))
+      prev = chunk
+    },
+  })
+}
+
+export async function modifySubtitle(assFile: string, options: ModifySubtitleOptions) {
+  const {
+    exec,
+    handle = stream => stream,
+    assOutputFile = undefined,
+  } = options
+
+  const assFileF = f(assFile).nameDeAppend('-original')
+  const assInputPath = `dist-ass/${assFile}`
+  const assOutputPath = `dist-ass/${assOutputFile || assFile}`
+  const srtInputPath = `dist-ass/${assFileF.clone().nameAppend('_1').ext('srt')}`
+  const srtOutputPath = `dist-ass/${assFileF.clone().nameAppend('_2').ext('srt')}`
+
+  if (!fs.existsSync(assInputPath)) return
+
+  rm(srtInputPath)
+  rm(srtOutputPath)
+
+  await exec(`ffmpeg -i ${assInputPath} -c:s text ${srtInputPath}`)
+
+  handle(srtStream(
+    fs.createReadStream(srtInputPath)
+      .pipe(parse())
+  ))
+      .pipe(stringify({ format: 'SRT' }))
+      .pipe(fs.createWriteStream(srtOutputPath))
+
+  rm(assOutputPath)
+
+  await exec(`ffmpeg -i ${srtOutputPath} ${assOutputPath}`)
+
+  rm(srtInputPath)
+  rm(srtOutputPath)
+
+  updateASSMetadata(assOutputPath, `../dist/${assFileF.clone().ext('mp4')}`)
 }
 
 export function updateASSMetadata(assPath: string, videoPath: string): void {

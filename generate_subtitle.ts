@@ -2,7 +2,7 @@ import fs from 'fs'
 import { video_batch } from './lib/video_batch'
 import { mkdir, copy, rm, rename } from './lib/fs'
 import { f } from './lib/filename'
-import { modifySubtitle, moveSubtitleTime, updateASSMetadata } from './lib/subtitle'
+import { modifySubtitle, updateASSMetadata } from './lib/subtitle'
 import { encoder } from './lib/encode'
 
 video_batch({
@@ -85,10 +85,7 @@ video_batch({
     )
 
     // 移動時間軸
-    await modifySubtitle(
-      `${f(file).nameAppend('-original').ext('ass')}`,
-      stream => moveSubtitleTime(-300, stream)
-    )
+    await modifySubtitle(`${f(file).nameAppend('-original').ext('ass')}`, { exec })
 
   }
 })
