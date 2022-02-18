@@ -25,8 +25,6 @@ export interface VideoBatchOptions {
   onStop?: () => void
 }
 
-export const file_ext = (filename: string, ext: string) => filename.replace('.mp4', ext)
-
 export function video_batch(options: VideoBatchOptions) {
   const {
     handle,
@@ -35,8 +33,8 @@ export function video_batch(options: VideoBatchOptions) {
     onStop,
   } = options
 
-  const isDebug = process.argv.includes('--debug')
   const isLog = process.argv.includes('--log')
+  const isLogStderr = process.argv.includes('--log-stderr')
 
   const log = debug('log', isLog)
   const bar = progressbar({ isLogMode: isLog })
@@ -54,22 +52,24 @@ export function video_batch(options: VideoBatchOptions) {
     log('video_filter_pattern', `^${video_filter_pattern}\\\.mp4$`)
 
     const exec: VideoBatchExec = cmd => new Promise<void>(resolve => {
-      const proc = spawn(
-        cmd.split(' ')[0],
-        cmd.split(' ').splice(1)
-      )
+      setTimeout(() => {
+        const proc = spawn(
+          cmd.split(' ')[0],
+          cmd.split(' ').splice(1)
+        )
 
-      if (isDebug) {
-        proc.stderr.setEncoding('utf8')
-        proc.stderr.on('data', err => {
-          console.log('')
-          console.error(err)
+        if (isLogStderr) {
+          proc.stderr.setEncoding('utf-8')
+          proc.stderr.on('data', err => {
+            console.log('')
+            console.error(err)
+          })
+        }
+
+        proc.on('close', () => {
+          resolve()
         })
-      }
-
-      proc.on('close', () => {
-        resolve()
-      })
+      }, 100)
     })
 
     bar.start(videos.length, 0, { speed: 'N/A' })

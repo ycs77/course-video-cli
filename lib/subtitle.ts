@@ -1,6 +1,72 @@
 import fs from 'fs'
+import { spawn } from 'child_process'
+import { map, resync, parse, stringify } from 'subtitle'
+import { Stream } from 'stream'
+import { rm } from './fs'
+import { f } from './filename'
 
-export function replace_ass_header(assPath: string, videoPath: string): void {
+function assToSrt(assPath: string, srtPath: string) {
+  return new Promise<void>(resolve => {
+    setTimeout(() => {
+      const proc = spawn('ffmpeg', `-i ${assPath} -c:s text ${srtPath}`.split(' '))
+      proc.on('close', () => {
+        resolve()
+      })
+    }, 100)
+  })
+}
+
+function srtToAss(srtPath: string, assPath: string) {
+  return new Promise<void>(resolve => {
+    setTimeout(() => {
+      const proc = spawn('ffmpeg', `-i ${srtPath} ${assPath}`.split(' '))
+      proc.on('close', () => {
+        resolve()
+      })
+    }, 100)
+  })
+}
+
+export async function modifySubtitle(assFile: string, handle: (stream: Stream) => Stream) {
+  const assFileF = f(assFile).nameDeAppend('-original')
+  const assPath = `dist-ass/${assFile}`
+  const srt1Path = `dist-ass/${assFileF.clone().nameAppend('_1').ext('srt')}`
+  const srt2Path = `dist-ass/${assFileF.clone().nameAppend('_2').ext('srt')}`
+
+  rm(srt1Path)
+  rm(srt2Path)
+
+  await assToSrt(assPath, srt1Path)
+
+  handle(
+    fs.createReadStream(srt1Path)
+      .pipe(parse())
+  )
+      .pipe(stringify({ format: 'SRT' }))
+      .pipe(fs.createWriteStream(srt2Path))
+
+  rm(assPath)
+
+  await srtToAss(srt2Path, assPath)
+
+  rm(srt1Path)
+  rm(srt2Path)
+
+  updateASSMetadata(assPath, `../dist/${assFileF.clone().ext('mp4')}`)
+}
+
+export function moveSubtitleTime(time: number, stream: Stream) {
+  return stream
+    .pipe(resync(time))
+    .pipe(map(node => {
+      if (node.type === 'cue' && node.data.start < 0) {
+        node.data.start = 0
+      }
+      return node
+    }))
+}
+
+export function updateASSMetadata(assPath: string, videoPath: string): void {
   let content = fs.readFileSync(assPath, { encoding: 'utf-8' })
 
   const ass_header = `[Script Info]
@@ -25,7 +91,7 @@ Video Zoom Percent: 0.500000
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
 Style: Default,Noto Sans TC Bold,64,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0,0,0,100,100,1.2,0,1,1.1,1.2,2,10,10,64,1`
 
-  content = content.replace(/^[\s\S]+(?=\n\n\[Events\])/, ass_header)
+  content = content.replace(/^[\s\S]+(?=\r?\n\r?\n\[Events\])/, ass_header)
 
   fs.writeFileSync(assPath, content, { encoding: 'utf-8' })
 }

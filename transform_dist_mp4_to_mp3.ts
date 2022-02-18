@@ -1,8 +1,9 @@
-import { video_batch, file_ext } from './lib/video_batch'
+import { video_batch } from './lib/video_batch'
 import { mustBeExist, mkdir, rm } from './lib/fs'
+import { f } from './lib/filename'
 
 video_batch({
-  maxConcurrent: 8,
+  maxConcurrent: 6,
   onStart() {
 
     mustBeExist('dist')
@@ -12,9 +13,9 @@ video_batch({
   },
   async handle({ file, exec }) {
 
-    rm(`dist-mp3/${file_ext(file, '.mp3')}`)
+    rm(`dist-mp3/${f(file).ext('mp3')}`)
 
-    await exec(`ffmpeg -i dist/${file} dist-mp3/${file_ext(file, '.mp3')}`)
+    await exec(`ffmpeg -i dist/${file} dist-mp3/${f(file).ext('mp3')}`)
 
   },
 })

@@ -1,7 +1,8 @@
 import fs from 'fs'
-import { video_batch, file_ext } from './lib/video_batch'
+import { video_batch } from './lib/video_batch'
 import { mkdir, copy, rm, rename } from './lib/fs'
-import { replace_ass_header } from './lib/subtitle'
+import { f } from './lib/filename'
+import { modifySubtitle, moveSubtitleTime, updateASSMetadata } from './lib/subtitle'
 import { encoder } from './lib/encode'
 
 video_batch({
@@ -13,9 +14,9 @@ video_batch({
   },
   async handle({ file, exec, log }) {
 
-    rm(`dist-ass/${file_ext(file, '.ass')}`)
-    rm(`dist-ass/${file_ext(file, '.ass').replace('.ass', '.zh-tw.ass')}`)
-    rm(`dist-ass/${file_ext(file, '.ass').replace('.ass', '-original.ass')}`)
+    rm(`dist-ass/${f(file).ext('ass')}`)
+    rm(`dist-ass/${f(file).ext('ass').nameAppend('.zh-tw')}`)
+    rm(`dist-ass/${f(file).ext('ass').nameAppend('-original')}`)
 
     const { encode } = encoder({
       encodeFormat: str => `${str}TEMP`,
@@ -23,7 +24,7 @@ video_batch({
 
     let assTemp: string
 
-    const mp3IsExists = fs.existsSync(`dist-mp3/${file_ext(file, '.mp3')}`)
+    const mp3IsExists = fs.existsSync(`dist-mp3/${f(file).ext('mp3')}`)
     log('if mp3 exists', mp3IsExists)
     if (mp3IsExists) {
       // ---------- [[ 轉換 mp3 ]] ----------
@@ -31,7 +32,7 @@ video_batch({
       // base64 檔名
       const encodedMp3 = encode(file.replace('.mp4', '')) + '.mp3'
       copy(
-        `dist-mp3/${file_ext(file, '.mp3')}`,
+        `dist-mp3/${f(file).ext('mp3')}`,
         `dist-mp3/${encodedMp3}`
       )
 
@@ -66,21 +67,27 @@ video_batch({
     }
 
     // 將 ass 檔名改回來
-    const assOutput = `dist-ass/${file_ext(file, '.ass')}`
+    const assOutput = `dist-ass/${f(file).ext('ass')}`
     log('ass temp', assTemp)
     log('ass output', assOutput)
     rename(assTemp, assOutput)
 
     // 加上 `-original` 後綴
     rename(
-      `dist-ass/${file_ext(file, '.ass')}`,
-      `dist-ass/${file_ext(file, '.ass').replace('.ass', '-original.ass')}`
+      `dist-ass/${f(file).ext('ass')}`,
+      `dist-ass/${f(file).ext('ass').nameAppend('-original')}`
     )
 
     // 更新 ASS 字幕檔的 metadata
-    replace_ass_header(
-      `dist-ass/${file_ext(file, '.ass').replace('.ass', '-original.ass')}`,
+    updateASSMetadata(
+      `dist-ass/${f(file).ext('ass').nameAppend('-original')}`,
       `../dist/${file}`
+    )
+
+    // 移動時間軸
+    await modifySubtitle(
+      `${f(file).nameAppend('-original').ext('ass')}`,
+      stream => moveSubtitleTime(-300, stream)
     )
 
   }

@@ -55,6 +55,12 @@ tsno cli/transform_dist_mp4_to_mp3.ts 1-\[234\]
 tsno cli/generate_subtitle.ts
 ```
 
+### 修改字幕時間軸
+
+```bash
+tsno cli/modify_subtitle.ts
+```
+
 ### 合併字幕
 
 ```bash
