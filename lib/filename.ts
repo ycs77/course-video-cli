@@ -12,8 +12,8 @@ export class FilenameFluent {
     return this
   }
 
-  name(text: string): this;
-  name(callback: (name: string) => string): this;
+  name(text: string): FilenameFluent;
+  name(callback: (name: string) => string): FilenameFluent;
   name(text: string | ((name: string) => string)) {
     if (typeof text === 'function') {
       text = text(this._name)

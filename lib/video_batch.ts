@@ -2,8 +2,8 @@ import fs from 'fs'
 import { spawn } from 'child_process'
 import colors from 'colors'
 import Bottleneck from 'bottleneck'
-import progressbar from './progressbar'
 import { SingleBar } from 'cli-progress'
+import progressbar from './progressbar'
 import { createTimer } from './timer'
 import { formatTotalTime1 } from './output'
 import { debug, LogPrinter } from './debug'
@@ -28,7 +28,7 @@ export interface VideoBatchOptions {
 export function video_batch(options: VideoBatchOptions) {
   const {
     handle,
-    maxConcurrent = 8,
+    maxConcurrent = 5,
     onStart,
     onStop,
   } = options

@@ -1,7 +1,7 @@
 import { video_batch } from './lib/video_batch'
 import { mustBeExist } from './lib/fs'
 import { f } from './lib/filename'
-import { modifySubtitle } from './lib/subtitle'
+import { modifySubtitle, srtStream } from './lib/subtitle'
 
 video_batch({
   maxConcurrent: 10,
@@ -13,7 +13,10 @@ video_batch({
   async handle({ file, exec }) {
 
     // 移動時間軸
-    await modifySubtitle(`${f(file).nameAppend('-original').ext('ass')}`, { exec })
+    await modifySubtitle(`${f(file).nameAppend('-original').ext('ass')}`, {
+      exec,
+      handle: srtStream,
+    })
 
   }
 })

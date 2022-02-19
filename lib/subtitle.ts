@@ -1,7 +1,7 @@
 import fs from 'fs'
 import { map, resync, parse, stringify, Node } from 'subtitle'
 import { Stream, Transform } from 'stream'
-import { mustBeExist, rm } from './fs'
+import { rm } from './fs'
 import { f } from './filename'
 import { VideoBatchExec } from './video_batch'
 
@@ -72,12 +72,15 @@ export async function modifySubtitle(assFile: string, options: ModifySubtitleOpt
 
   await exec(`ffmpeg -i ${assInputPath} -c:s text ${srtInputPath}`)
 
-  handle(srtStream(
-    fs.createReadStream(srtInputPath)
-      .pipe(parse())
-  ))
-      .pipe(stringify({ format: 'SRT' }))
-      .pipe(fs.createWriteStream(srtOutputPath))
+  await new Promise(resolve => {
+    handle(
+      fs.createReadStream(srtInputPath)
+        .pipe(parse())
+    )
+        .pipe(stringify({ format: 'SRT' }))
+        .pipe(fs.createWriteStream(srtOutputPath))
+        .on('finish', resolve)
+  })
 
   rm(assOutputPath)
 

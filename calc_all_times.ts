@@ -1,26 +1,19 @@
 import fs from 'fs'
-import { exec } from 'child_process'
+import Bottleneck from 'bottleneck'
+import { getDuration } from './lib/duration'
 import { formatTotalTime1, formatTotalTime2 } from './lib/output'
 
 fs.readdir(process.cwd(), async (err, files) => {
 
+  const limiter = new Bottleneck({ maxConcurrent: 8 })
+
   const all_videos_time = await Promise.all(
     files
       .filter(file => /\.mp4$/.test(file))
-      .map(file => new Promise<number>(resolve => {
-        exec(`ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 ${file}`,
-          (error, stdout, stderr) => {
-            if (error) {
-              console.error(`error: ${error}`)
-              return
-            }
-            resolve(parseInt(stdout))
-          }
-        )
-      }))
+      .map(file => limiter.schedule(() => getDuration(file)))
   )
 
-  const seconds = all_videos_time.reduce((v, c) => v + c, 0)
+  const seconds = all_videos_time.reduce((carry, s) => carry + s, 0)
 
   formatTotalTime1(seconds, '總計時長：')
   formatTotalTime2(seconds)

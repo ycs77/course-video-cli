@@ -21,7 +21,8 @@ export function rm(path: string) {
 }
 
 export function rename(oldPath: string, newPath: string) {
-  if (fs.existsSync(oldPath) && !fs.existsSync(newPath)) {
+  if (fs.existsSync(oldPath)) {
+    rm(newPath)
     fs.renameSync(oldPath, newPath)
   }
 }
