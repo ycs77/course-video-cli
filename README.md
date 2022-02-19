@@ -5,11 +5,16 @@
 ## 下載專案
 
 ```bash
-npm i tsno -g
 git clone https://github.com/ycs77/ffmpeg-cli-utils cli
 cd cli
 yarn
 cd ..
+```
+
+安裝 tsno：
+
+```bash
+npm i tsno -g
 ```
 
 ## 下載 autosub
