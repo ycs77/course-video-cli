@@ -5,6 +5,7 @@
   "author": "Lucas Yang <yangchenshin77@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "bottleneck": "^2.19.5",
     "cli-progress": "^3.9.1",
     "colors": "1.4.0",
     "subtitle": "^4.1.2"
