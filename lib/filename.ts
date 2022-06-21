@@ -22,6 +22,10 @@ export class FilenameFluent {
     return this
   }
 
+  getName() {
+    return this._name
+  }
+
   namePrepend(text: string) {
     this._name = `${text}${this._name}`
     return this

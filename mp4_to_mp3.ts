@@ -1,6 +1,7 @@
 import { videoBatch } from './lib/video_batch'
 import { mustBeExist, mkdir, rm } from './lib/fs'
 import { f } from './lib/filename'
+import { exec } from './lib/process'
 import type { CliOptions } from './lib/types'
 
 export function runMp4ToMp3(video_filter_pattern: string, options: CliOptions) {
@@ -13,7 +14,7 @@ export function runMp4ToMp3(video_filter_pattern: string, options: CliOptions) {
       mkdir('dist-mp3')
 
     },
-    async handle({ file, exec }) {
+    async handle({ file }) {
 
       rm(`dist-mp3/${f(file).ext('mp3')}`)
 

@@ -33,6 +33,7 @@ https://github.com/BingLingGroup/autosub/releases/tag/0.5.7-alpha
 | dist-mp3   | `*.mp3` | 擷取後製影片的 mp3                   | *自動新增* |
 | dist-ass   | `*.ass` | 產生的字幕檔 (含有 `-original` 後綴) | *自動新增* |
 | dist-v-ass | `*.mp4` | 合併字幕檔的影片                     | *自動新增* |
+| dist-data  |         | 用於機器學習                         | *自動新增* |
 
 ## 指令
 
@@ -70,4 +71,10 @@ tsx cli/tool sub:correct
 
 ```bash
 tsx cli/tool sub:merge
+```
+
+### 建立機器學習用資料
+
+```bash
+tsx cli/tool trains-data:generate
 ```

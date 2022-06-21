@@ -3,13 +3,7 @@ import { map, resync, parse, stringify, Node } from 'subtitle'
 import { Stream, Transform } from 'stream'
 import { rm } from './fs'
 import { f } from './filename'
-import { VideoBatchExec } from './video_batch'
-
-export interface ModifySubtitleOptions {
-  exec: VideoBatchExec
-  handle?: (stream: Stream) => Stream
-  assOutputFile?: string
-}
+import { exec } from './process'
 
 export function srtStream(stream: Stream) {
   return stream
@@ -52,18 +46,32 @@ export function mapWithPrev(mapper: (node: Node, prev: Node, index: number) => a
   })
 }
 
-export async function modifySubtitle(assFile: string, options: ModifySubtitleOptions) {
+export interface HandleSubtitleHandleOptions {
+  input: string
+  output: string
+  done: () => void
+}
+
+export interface ModifySubtitleOptions {
+  assOutputFile?: string
+  writeAss?: boolean
+}
+
+export async function handleSubtitle(
+  assFile: string,
+  handle: (options: HandleSubtitleHandleOptions) => void,
+  options: ModifySubtitleOptions = {}
+) {
   const {
-    exec,
-    handle = stream => stream,
     assOutputFile = undefined,
+    writeAss = true,
   } = options
 
   const assFileF = f(assFile).nameDeAppend('-original')
   const assInputPath = `dist-ass/${assFile}`
   const assOutputPath = `dist-ass/${assOutputFile || assFile}`
-  const srtInputPath = `dist-ass/${assFileF.clone().nameAppend('_1').ext('srt')}`
-  const srtOutputPath = `dist-ass/${assFileF.clone().nameAppend('_2').ext('srt')}`
+  const srtInputPath = `dist-ass/${assFileF.clone().nameAppend('_in').ext('srt')}`
+  const srtOutputPath = `dist-ass/${assFileF.clone().nameAppend('_out').ext('srt')}`
 
   if (!fs.existsSync(assInputPath)) return
 
@@ -72,24 +80,42 @@ export async function modifySubtitle(assFile: string, options: ModifySubtitleOpt
 
   await exec(`ffmpeg -i ${assInputPath} -c:s text ${srtInputPath}`)
 
-  await new Promise(resolve => {
-    handle(
-      fs.createReadStream(srtInputPath)
-        .pipe(parse())
-    )
-        .pipe(stringify({ format: 'SRT' }))
-        .pipe(fs.createWriteStream(srtOutputPath))
-        .on('finish', resolve)
+  await new Promise<void>(resolve => {
+    handle({
+      input: srtInputPath,
+      output: srtOutputPath,
+      done: resolve,
+    })
   })
 
-  rm(assOutputPath)
+  if (writeAss) {
+    rm(assOutputPath)
 
-  await exec(`ffmpeg -i ${srtOutputPath} ${assOutputPath}`)
+    await exec(`ffmpeg -i ${srtOutputPath} ${assOutputPath}`)
+  }
 
   rm(srtInputPath)
   rm(srtOutputPath)
 
-  updateASSMetadata(assOutputPath, `../dist/${assFileF.clone().ext('mp4')}`)
+  if (writeAss) {
+    updateASSMetadata(assOutputPath, `../dist/${assFileF.clone().ext('mp4')}`)
+  }
+}
+
+export async function modifySubtitle(
+  assFile: string,
+  handle: (stream: Stream) => Stream = stream => stream,
+  options: ModifySubtitleOptions = {}
+) {
+  await handleSubtitle(assFile, ({ input, output, done }) => {
+    handle(
+      fs.createReadStream(input)
+        .pipe(parse())
+    )
+        .pipe(stringify({ format: 'SRT' }))
+        .pipe(fs.createWriteStream(output))
+        .on('finish', done)
+  }, options)
 }
 
 export function updateASSMetadata(assPath: string, videoPath: string): void {

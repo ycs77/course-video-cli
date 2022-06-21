@@ -1,10 +1,11 @@
 import { videoBatch } from './lib/video_batch'
 import { mustBeExist, mkdir, rm } from './lib/fs'
 import { f } from './lib/filename'
+import { exec } from './lib/process'
 import type { CliOptions } from './lib/types'
 
-export function runSubMerge(options: CliOptions) {
-  videoBatch({ options }, {
+export function runSubMerge(video_filter_pattern: string, options: CliOptions) {
+  videoBatch({ video_filter_pattern, options }, {
     maxConcurrent: 6,
     onStart() {
 
@@ -13,7 +14,7 @@ export function runSubMerge(options: CliOptions) {
       mkdir('dist-v-ass')
 
     },
-    async handle({ file, exec }) {
+    async handle({ file }) {
 
       rm(`dist-v-ass/${file}`)
 

@@ -1,5 +1,4 @@
 import fs from 'fs'
-import { spawn } from 'child_process'
 import Bottleneck from 'bottleneck'
 import { SingleBar } from 'cli-progress'
 import 'colors'
@@ -9,24 +8,23 @@ import { formatTotalTime } from './output'
 import { debug, type LogPrinter } from './debug'
 import type { CliOptions } from './types'
 
-export type VideoBatchExec = (cmd: string) => Promise<void>
 export type VideoBatchHandle = (options: VideoBatchHandleOptions) => Promise<void>
 
 export interface VideoBatchHandleOptions {
   file: string
   bar: SingleBar
-  exec: VideoBatchExec
   log: LogPrinter
 }
 
 export interface CliParams {
-  video_filter_pattern?: string
+  video_filter_pattern: string | undefined
   options: CliOptions
 }
 
 export interface VideoBatchOptions {
   handle: VideoBatchHandle
   maxConcurrent?: number
+  startProgress?: boolean
   onStart?: () => void
   onStop?: () => void
 }
@@ -35,12 +33,12 @@ export function videoBatch(cliParams: CliParams, options: VideoBatchOptions) {
   const {
     handle,
     maxConcurrent = 5,
+    startProgress = true,
     onStart,
     onStop,
   } = options
 
   const isLog = cliParams.options.log
-  const isLogStderr = cliParams.options.logStderr
 
   const log = debug('log', isLog)
   const bar = progressbar({ isLogMode: isLog })
@@ -56,41 +54,20 @@ export function videoBatch(cliParams: CliParams, options: VideoBatchOptions) {
 
     log('dist files', files)
     log('video_filter_pattern', `^${video_filter_pattern}\\\.mp4$`)
+    log('filtered videos', videos)
 
-    const exec: VideoBatchExec = cmd => new Promise<void>(resolve => {
-      setTimeout(() => {
-        const parts = cmd.split(' ')
-        const proc = spawn(parts[0], parts.splice(1))
-
-        if (isLogStderr) {
-          proc.stderr.setEncoding('utf-8')
-          proc.stderr.on('data', err => {
-            console.log('')
-            console.error(err)
-          })
-        }
-
-        proc.on('close', () => {
-          resolve()
-        })
-      }, 100)
-    })
-
-    bar.start(videos.length, 0, { speed: 'N/A' })
+    if (startProgress) bar.start(videos.length, 0)
     timer.start()
 
     await Promise.all(
-      videos.map(file => limiter.schedule(() => new Promise<void>(async resolve => {
-        await handle({ file, bar, exec, log })
-
-        bar.increment()
-
-        resolve()
-      })))
+      videos.map(file => limiter.schedule(async () => {
+        await handle({ file, bar, log })
+        if (startProgress) bar.increment()
+      }))
     )
 
     timer.stop()
-    bar.stop()
+    if (startProgress) bar.stop()
 
     if (onStop) onStop()
 

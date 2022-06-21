@@ -7,17 +7,18 @@ import { f } from './lib/filename'
 import { modifySubtitle, srtStream, updateASSMetadata } from './lib/subtitle'
 import { encoder } from './lib/encode'
 import { getDuration } from './lib/duration'
+import { exec } from './lib/process'
 import type { CliOptions } from './lib/types'
 
-export function runSubGenerate(options: CliOptions) {
-  videoBatch({ options }, {
+export function runSubGenerate(video_filter_pattern: string, options: CliOptions) {
+  videoBatch({ video_filter_pattern, options }, {
     maxConcurrent: 3,
     onStart() {
 
       mkdir('dist-ass')
 
     },
-    async handle({ file, exec, log }) {
+    async handle({ file, log }) {
 
       rm(`dist-ass/${f(file).ext('ass')}`)
       rm(`dist-ass/${f(file).ext('ass').nameAppend('.zh-tw')}`)
@@ -68,47 +69,47 @@ export function runSubGenerate(options: CliOptions) {
           let fullSrtContent = ''
 
           await Promise.all(
-            Array.from({ length: count })
-              .map((_, index) => limiter.schedule(async () => {
-                const chunkFile = f(file).nameAppend(`_chunk_${index + 1}`)
-                const start = chunkTime * index // 秒
-                const cmd = `ffmpeg -i ${distDir}/${file} -ss ${start} -t ${chunkTime} ${distDir}/${chunkFile}`
+            Array(count).map((_, index) => limiter.schedule(async () => {
+              const chunkFile = f(file).nameAppend(`_chunk_${index + 1}`)
+              const start = chunkTime * index // 秒
 
-                log(`media chunk ${index + 1} file`, `${distDir}/${chunkFile}`)
-                log(`media chunk ${index + 1} cmd`, cmd)
+              // 分割
+              const cmd = `ffmpeg -i ${distDir}/${file} -ss ${start} -t ${chunkTime} ${distDir}/${chunkFile}`
+              log(`media chunk ${index + 1} file`, `${distDir}/${chunkFile}`)
+              log(`media chunk ${index + 1} cmd`, cmd)
+              await exec(cmd)
 
-                // 分割
-                await exec(cmd)
-                // 產生字幕
-                await handleSubtitle(`${chunkFile}`)
-                // 刪除分割暫存影片/音樂
-                rm(`${distDir}/${chunkFile}`)
+              // 產生字幕
+              await handleSubtitle(`${chunkFile}`)
 
-                // ------------------------------------------------
-                // 組合字幕
-                const chunkASSFile = chunkFile.clone().ext('ass')
-                const chunkSrtFile = chunkFile.clone().ext('srt')
-                const chunkSrtOutputFile = chunkFile.clone().nameAppend('-o').ext('srt')
+              // 刪除分割暫存影片/音樂
+              rm(`${distDir}/${chunkFile}`)
 
-                rm(`dist-ass/${chunkSrtFile}`)
-                await exec(`ffmpeg -i dist-ass/${chunkASSFile} -c:s text dist-ass/${chunkSrtFile}`)
+              // ------------------------------------------------
+              // 組合字幕
+              const chunkASSFile = chunkFile.clone().ext('ass')
+              const chunkSrtFile = chunkFile.clone().ext('srt')
+              const chunkSrtOutputFile = chunkFile.clone().nameAppend('-o').ext('srt')
 
-                await new Promise(resolve => {
-                  fs.createReadStream(`dist-ass/${chunkSrtFile}`)
-                    .pipe(parse())
-                    .pipe(resync(start * 1000)) // 毫秒
-                    .pipe(stringify({ format: 'SRT' }))
-                    .pipe(fs.createWriteStream(`dist-ass/${chunkSrtOutputFile}`))
-                    .on('finish', resolve)
-                })
+              rm(`dist-ass/${chunkSrtFile}`)
+              await exec(`ffmpeg -i dist-ass/${chunkASSFile} -c:s text dist-ass/${chunkSrtFile}`)
 
-                if (fullSrtContent) fullSrtContent += "\n"
-                fullSrtContent += fs.readFileSync(`dist-ass/${chunkSrtOutputFile}`, { encoding: 'utf-8' })
+              await new Promise(resolve => {
+                fs.createReadStream(`dist-ass/${chunkSrtFile}`)
+                  .pipe(parse())
+                  .pipe(resync(start * 1000)) // 毫秒
+                  .pipe(stringify({ format: 'SRT' }))
+                  .pipe(fs.createWriteStream(`dist-ass/${chunkSrtOutputFile}`))
+                  .on('finish', resolve)
+              })
 
-                rm(`dist-ass/${chunkASSFile}`)
-                rm(`dist-ass/${chunkSrtFile}`)
-                rm(`dist-ass/${chunkSrtOutputFile}`)
-              }))
+              if (fullSrtContent) fullSrtContent += "\n"
+              fullSrtContent += fs.readFileSync(`dist-ass/${chunkSrtOutputFile}`, { encoding: 'utf-8' })
+
+              rm(`dist-ass/${chunkASSFile}`)
+              rm(`dist-ass/${chunkSrtFile}`)
+              rm(`dist-ass/${chunkSrtOutputFile}`)
+            }))
           )
 
           fs.writeFileSync(`dist-ass/${f(file).ext('srt')}`, fullSrtContent, { encoding: 'utf-8' })
@@ -139,10 +140,7 @@ export function runSubGenerate(options: CliOptions) {
       )
 
       // 移動時間軸
-      await modifySubtitle(`${f(file).nameAppend('-original').ext('ass')}`, {
-        exec,
-        handle: srtStream,
-      })
+      await modifySubtitle(`${f(file).nameAppend('-original').ext('ass')}`, srtStream)
 
     }
   })
