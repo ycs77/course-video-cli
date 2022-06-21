@@ -1,14 +1,16 @@
 {
   "name": "ffmpeg-cli-utils",
-  "version": "0.1.0",
+  "version": "0.0.0",
   "description": "",
   "author": "Lucas Yang <yangchenshin77@gmail.com>",
   "license": "MIT",
   "dependencies": {
     "bottleneck": "^2.19.5",
+    "cac": "^6.7.12",
     "cli-progress": "^3.9.1",
     "colors": "1.4.0",
-    "subtitle": "^4.1.2"
+    "subtitle": "^4.1.2",
+    "tsx": "^3.4.3"
   },
   "devDependencies": {
     "@types/cli-progress": "^3.9.2",

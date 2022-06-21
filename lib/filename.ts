@@ -51,7 +51,9 @@ export class FilenameFluent {
   }
 
   private explode(filename: string) {
-    const [_, path, name, extension] = filename.match(/^(.*[\\\/])?([^\\\/]*)\.(\w+)$/)
+    const matches = filename.match(/^(.*[\\\/])?([^\\\/]*)\.(\w+)$/)
+    if (!matches) return
+    const [_, path, name, extension] = matches
     this._path = path || ''
     this._name = name
     this._extension = extension

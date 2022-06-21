@@ -11,10 +11,10 @@ yarn
 cd ..
 ```
 
-安裝 tsno：
+安裝 tsx：
 
 ```bash
-npm i tsno -g
+npm i tsx -g
 ```
 
 ## 下載 autosub
@@ -39,35 +39,35 @@ https://github.com/BingLingGroup/autosub/releases/tag/0.5.7-alpha
 ### 計算總時數
 
 ```bash
-tsno cli/calc_all_times.ts
+tsx cli/tool all:duration
 ```
 
 ### mp4 轉 mp3
 
 ```bash
-tsno cli/transform_dist_mp4_to_mp3.ts
+tsx cli/tool mp4:mp3
 
 # 只轉換部分影片 (ex: 1-1.mp4 ~ 1-11.mp4)
-tsno cli/transform_dist_mp4_to_mp3.ts 1-\\d+
+tsx cli/tool mp4:mp3 1-\\d+
 
 # 只轉換部分影片 (ex: 1-2.mp4 + 1-3.mp4 + 1-4.mp4)
-tsno cli/transform_dist_mp4_to_mp3.ts 1-\[234\]
+tsx cli/tool mp4:mp3 1-\[234\]
 ```
 
 ### 產生字幕
 
 ```bash
-tsno cli/generate_subtitle.ts
+tsx cli/tool sub:generate
 ```
 
-### 修改字幕時間軸
+### 校正字幕時間軸
 
 ```bash
-tsno cli/modify_subtitle.ts
+tsx cli/tool sub:correct
 ```
 
 ### 合併字幕
 
 ```bash
-tsno cli/merge_ass_to_mp4.ts
+tsx cli/tool sub:merge
 ```

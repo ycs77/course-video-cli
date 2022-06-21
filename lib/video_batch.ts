@@ -1,12 +1,13 @@
 import fs from 'fs'
 import { spawn } from 'child_process'
-import colors from 'colors'
 import Bottleneck from 'bottleneck'
 import { SingleBar } from 'cli-progress'
+import 'colors'
 import progressbar from './progressbar'
 import { createTimer } from './timer'
-import { formatTotalTime1 } from './output'
-import { debug, LogPrinter } from './debug'
+import { formatTotalTime } from './output'
+import { debug, type LogPrinter } from './debug'
+import type { CliOptions } from './types'
 
 export type VideoBatchExec = (cmd: string) => Promise<void>
 export type VideoBatchHandle = (options: VideoBatchHandleOptions) => Promise<void>
@@ -18,6 +19,11 @@ export interface VideoBatchHandleOptions {
   log: LogPrinter
 }
 
+export interface CliParams {
+  video_filter_pattern?: string
+  options: CliOptions
+}
+
 export interface VideoBatchOptions {
   handle: VideoBatchHandle
   maxConcurrent?: number
@@ -25,7 +31,7 @@ export interface VideoBatchOptions {
   onStop?: () => void
 }
 
-export function video_batch(options: VideoBatchOptions) {
+export function videoBatch(cliParams: CliParams, options: VideoBatchOptions) {
   const {
     handle,
     maxConcurrent = 5,
@@ -33,8 +39,8 @@ export function video_batch(options: VideoBatchOptions) {
     onStop,
   } = options
 
-  const isLog = process.argv.includes('--log')
-  const isLogStderr = process.argv.includes('--log-stderr')
+  const isLog = cliParams.options.log
+  const isLogStderr = cliParams.options.logStderr
 
   const log = debug('log', isLog)
   const bar = progressbar({ isLogMode: isLog })
@@ -45,7 +51,7 @@ export function video_batch(options: VideoBatchOptions) {
 
     if (onStart) onStart()
 
-    const video_filter_pattern = process.argv[2] || '.*'
+    const video_filter_pattern = cliParams.video_filter_pattern || '.*'
     const videos = files.filter(file => new RegExp(`^${video_filter_pattern}\\\.mp4$`).test(file))
 
     log('dist files', files)
@@ -53,10 +59,8 @@ export function video_batch(options: VideoBatchOptions) {
 
     const exec: VideoBatchExec = cmd => new Promise<void>(resolve => {
       setTimeout(() => {
-        const proc = spawn(
-          cmd.split(' ')[0],
-          cmd.split(' ').splice(1)
-        )
+        const parts = cmd.split(' ')
+        const proc = spawn(parts[0], parts.splice(1))
 
         if (isLogStderr) {
           proc.stderr.setEncoding('utf-8')
@@ -90,8 +94,8 @@ export function video_batch(options: VideoBatchOptions) {
 
     if (onStop) onStop()
 
-    console.log(colors.green('Successfully'))
-    formatTotalTime1(timer.seconds, '執行時間：')
+    console.log('Successfully'.green)
+    formatTotalTime(timer.seconds, '執行時間：')
 
   })
 }

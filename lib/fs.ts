@@ -1,5 +1,5 @@
 import fs from 'fs'
-import colors from 'colors'
+import 'colors'
 
 export function mkdir(path: string) {
   if (!fs.existsSync(path)) {
@@ -29,7 +29,7 @@ export function rename(oldPath: string, newPath: string) {
 
 export function mustBeExist(path: string) {
   if (!fs.existsSync(path)) {
-    console.error(colors.red(`${path} does not exist`))
+    console.error(`${path} does not exist`.red)
     process.exit(1)
   }
 }
