@@ -87,9 +87,9 @@ export function runTrainsDataGenerate(video_filter_pattern: string, options: Cli
       })))
       bar.stop()
 
-      const break_trains = hasContent('dist-data/trains.txt') ? '\n' : ''
+      const break_trans = hasContent('dist-data/trans.txt') ? '\n' : ''
       const break_wav = hasContent('dist-data/wav.scp') ? '\n' : ''
-      fs.appendFileSync('dist-data/trains.txt', break_trains + lines.map(line => {
+      fs.appendFileSync('dist-data/trans.txt', break_trans + lines.map(line => {
         return `${line.id}\t${line.text}`
       }).join('\n'))
       fs.appendFileSync('dist-data/wav.scp', break_wav + lines.map(line => {
