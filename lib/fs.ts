@@ -27,6 +27,13 @@ export function rename(oldPath: string, newPath: string) {
   }
 }
 
+export function hasContent(path: string) {
+  if (fs.existsSync(path)) {
+    return !!fs.readFileSync(path, { encoding: 'utf-8' })
+  }
+  return false
+}
+
 export function mustBeExist(path: string) {
   if (!fs.existsSync(path)) {
     console.error(`${path} does not exist`.red)

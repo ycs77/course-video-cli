@@ -2,7 +2,7 @@ import fs from 'fs'
 import Bottleneck from 'bottleneck'
 import { map, resync } from 'subtitle'
 import { videoBatch } from './lib/video_batch'
-import { mustBeExist, mkdir, rm } from './lib/fs'
+import { mustBeExist, mkdir, hasContent } from './lib/fs'
 import { f } from './lib/filename'
 import { exec } from './lib/process'
 import { modifySubtitle } from './lib/subtitle'
@@ -87,8 +87,14 @@ export function runTrainsDataGenerate(video_filter_pattern: string, options: Cli
       })))
       bar.stop()
 
-      fs.appendFileSync(`dist-data/trains.txt`, lines.map(line => `${line.id} ${line.text}`).join('\n'))
-      fs.appendFileSync(`dist-data/wav.scp`, lines.map(line => `${line.id} ${line.audio}`).join('\n'))
+      const break_trains = hasContent('dist-data/trains.txt') ? '\n' : ''
+      const break_wav = hasContent('dist-data/wav.scp') ? '\n' : ''
+      fs.appendFileSync('dist-data/trains.txt', break_trains + lines.map(line => {
+        return `${line.id}\t${line.text}`
+      }).join('\n'))
+      fs.appendFileSync('dist-data/wav.scp', break_wav + lines.map(line => {
+        return `${line.id}\t${line.audio}`
+      }).join('\n'))
 
       console.log(`${sectionId} generated`.green)
 
