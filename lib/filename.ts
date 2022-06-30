@@ -1,7 +1,7 @@
 export class FilenameFluent {
-  private _path: string
-  private _name: string
-  private _extension: string
+  private _path = ''
+  private _name = ''
+  private _extension = ''
 
   constructor(filename: string) {
     this.explode(filename)
@@ -12,18 +12,14 @@ export class FilenameFluent {
     return this
   }
 
-  name(text: string): FilenameFluent;
-  name(callback: (name: string) => string): FilenameFluent;
+  name(text: string): FilenameFluent
+  name(callback: (name: string) => string): FilenameFluent
   name(text: string | ((name: string) => string)) {
     if (typeof text === 'function') {
       text = text(this._name)
     }
     this._name = text
     return this
-  }
-
-  getName() {
-    return this._name
   }
 
   namePrepend(text: string) {
@@ -46,6 +42,18 @@ export class FilenameFluent {
     return this
   }
 
+  getName() {
+    return this._name
+  }
+
+  getPath() {
+    return this._path
+  }
+
+  getExtension() {
+    return this._extension
+  }
+
   clone() {
     return new FilenameFluent(this.implode())
   }
@@ -57,10 +65,9 @@ export class FilenameFluent {
   private explode(filename: string) {
     const matches = filename.match(/^(.*[\\\/])?([^\\\/]*)\.(\w+)$/)
     if (!matches) return
-    const [_, path, name, extension] = matches
-    this._path = path || ''
-    this._name = name
-    this._extension = extension
+    this._path = matches[1] || ''
+    this._name = matches[2]
+    this._extension = matches[3]
   }
 
   toString() {
