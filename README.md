@@ -52,7 +52,7 @@ tsx cli/tool mp4:mp3
 tsx cli/tool mp4:mp3 1-\\d+
 
 # 只轉換部分影片 (ex: 1-2.mp4 + 1-3.mp4 + 1-4.mp4)
-tsx cli/tool mp4:mp3 1-\[234\]
+tsx cli/tool mp4:mp3 1-[234]
 ```
 
 ### 產生字幕
