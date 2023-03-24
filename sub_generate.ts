@@ -2,7 +2,7 @@ import fs from 'fs'
 import Bottleneck from 'bottleneck'
 import { resync, parse, stringify } from 'subtitle'
 import { videoBatch } from './lib/video_batch'
-import { mkdir, copy, rm, rename } from './lib/fs'
+import { mkdir, copy, rm, rename, mustBeNotExist } from './lib/fs'
 import { f } from './lib/filename'
 import { modifySubtitle, srtStream, updateASSMetadata } from './lib/subtitle'
 import { encoder } from './lib/encode'
@@ -19,6 +19,8 @@ export function runSubGenerate(video_filter_pattern: string, options: CliOptions
 
     },
     async handle({ file, log }) {
+
+      mustBeNotExist(`dist-ass/${f(file).ext('ass')}`)
 
       rm(`dist-ass/${f(file).ext('ass')}`)
       rm(`dist-ass/${f(file).ext('ass').nameAppend('.zh-tw')}`)

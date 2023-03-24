@@ -36,7 +36,16 @@ export function hasContent(path: string) {
 
 export function mustBeExist(path: string) {
   if (!fs.existsSync(path)) {
+    console.log()
     console.error(`${path} does not exist`.red)
+    process.exit(1)
+  }
+}
+
+export function mustBeNotExist(path: string) {
+  if (fs.existsSync(path)) {
+    console.log()
+    console.error(`${path} does exist`.red)
     process.exit(1)
   }
 }
