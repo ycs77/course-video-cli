@@ -40,41 +40,41 @@ https://github.com/BingLingGroup/autosub/releases/tag/0.5.7-alpha
 ### 計算總時數
 
 ```bash
-tsx cli/tool all:duration
+cli/tool.ts all:duration
 ```
 
 ### mp4 轉 mp3
 
 ```bash
-tsx cli/tool mp4:mp3
+cli/tool.ts mp4:mp3
 
 # 只轉換部分影片 (ex: 1-1.mp4 ~ 1-11.mp4)
-tsx cli/tool mp4:mp3 1-\\d+
+cli/tool.ts mp4:mp3 1-\\d+
 
 # 只轉換部分影片 (ex: 1-2.mp4 + 1-3.mp4 + 1-4.mp4)
-tsx cli/tool mp4:mp3 1-[234]
+cli/tool.ts mp4:mp3 1-[234]
 ```
 
 ### 產生字幕
 
 ```bash
-tsx cli/tool sub:generate
+cli/tool.ts sub:generate
 ```
 
 ### 校正字幕時間軸
 
 ```bash
-tsx cli/tool sub:correct
+cli/tool.ts sub:correct
 ```
 
 ### 合併字幕
 
 ```bash
-tsx cli/tool sub:merge
+cli/tool.ts sub:merge
 ```
 
 ### 建立機器學習用資料
 
 ```bash
-tsx cli/tool trains-data:generate
+cli/tool.ts trains-data:generate
 ```
