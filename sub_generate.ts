@@ -46,9 +46,16 @@ export function runSubGenerate(video_filter_pattern: string, options: CliOptions
         copy(`${distDir}/${file}`, `${distDir}/${encoded}`)
 
         // 上傳 mp3 / mp4
-        const cmd = `./cli/autosub/autosub/autosub -i ${distDir}/${encoded} -S zh-TW -o dist-ass -F ass -y`
-        log(`${mediaExt} cmd`, cmd)
-        await exec(cmd)
+        const cmd = './cli/autosub/autosub/autosub'
+        const args = [
+          '-i', `${distDir}/${encoded}`,
+          '-S', 'zh-TW',
+          '-o', 'dist-ass',
+          '-F', 'ass',
+          '-y',
+        ]
+        log(`${mediaExt} cmd`, cmd + args.join(' '))
+        await exec(cmd, args)
 
         // 刪除暫存檔
         rm(`${distDir}/${encoded}`)
@@ -62,7 +69,12 @@ export function runSubGenerate(video_filter_pattern: string, options: CliOptions
       }
 
       // 分割處理影片/音樂
-      async function handleMedia(file: string, duration: number, chunkTime: number, handleSubtitle: (chunkFile: string) => Promise<void> | void) {
+      async function handleMedia(
+        file: string,
+        duration: number,
+        chunkTime: number,
+        handleSubtitle: (chunkFile: string) => Promise<void> | void
+      ) {
         if (duration > chunkTime) {
           const limiter = new Bottleneck({ maxConcurrent: 1 })
           const count = Math.ceil(duration / chunkTime)
@@ -74,10 +86,16 @@ export function runSubGenerate(video_filter_pattern: string, options: CliOptions
               const start = chunkTime * index // 秒
 
               // 分割
-              const cmd = `ffmpeg -i ${distDir}/${file} -ss ${start} -t ${chunkTime} ${distDir}/${chunkFile}`
+              const cmd = 'ffmpeg'
+              const args = [
+                '-i', `${distDir}/${file}`,
+                '-ss', `${start}`,
+                '-t', `${chunkTime}`,
+                `${distDir}/${chunkFile}`,
+              ]
               log(`media chunk ${index + 1} file`, `${distDir}/${chunkFile}`)
-              log(`media chunk ${index + 1} cmd`, cmd)
-              await exec(cmd)
+              log(`media chunk ${index + 1} cmd`, cmd + args.join(' '))
+              await exec(cmd, args)
 
               // 產生字幕
               await handleSubtitle(`${chunkFile}`)
@@ -92,7 +110,11 @@ export function runSubGenerate(video_filter_pattern: string, options: CliOptions
               const chunkSrtOutputFile = chunkFile.clone().nameAppend('-o').ext('srt')
 
               rm(`dist-ass/${chunkSrtFile}`)
-              await exec(`ffmpeg -i dist-ass/${chunkASSFile} -c:s text dist-ass/${chunkSrtFile}`)
+              await exec('ffmpeg', [
+                '-i', `dist-ass/${chunkASSFile}`,
+                '-c:s', 'text',
+                `dist-ass/${chunkSrtFile}`,
+              ])
 
               await new Promise(resolve => {
                 fs.createReadStream(`dist-ass/${chunkSrtFile}`)
@@ -114,7 +136,10 @@ export function runSubGenerate(video_filter_pattern: string, options: CliOptions
 
           fs.writeFileSync(`dist-ass/${f(file).ext('srt')}`, fullSrtContent, { encoding: 'utf-8' })
 
-          await exec(`ffmpeg -i dist-ass/${f(file).ext('srt')} dist-ass/${f(file).ext('ass')}`)
+          await exec('ffmpeg', [
+            '-i', `dist-ass/${f(file).ext('srt')}`,
+            `dist-ass/${f(file).ext('ass')}`,
+          ])
 
           rm(`dist-ass/${f(file).ext('srt')}`)
         } else {

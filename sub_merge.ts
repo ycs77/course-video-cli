@@ -18,7 +18,11 @@ export function runSubMerge(video_filter_pattern: string, options: CliOptions) {
 
       rm(`dist-v-ass/${file}`)
 
-      await exec(`ffmpeg -i dist/${file} -vf ass=dist-ass/${f(file).ext('ass')} dist-v-ass/${file}`)
+      await exec('ffmpeg', [
+        '-i', `dist/${file}`,
+        '-vf', `ass=dist-ass/${f(file).ext('ass')}`,
+        `dist-v-ass/${file}`,
+      ])
 
     }
   })

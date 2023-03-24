@@ -35,7 +35,7 @@ export function runTrainsDataGenerate(video_filter_pattern: string, options: Cli
       const section = Number(fileName.split('-')[1])
       const sectionId = generateSectionId(chapter, section)
 
-      const runCmds: string[] = []
+      const runCmds: (string | [string, string[]])[] = []
       const lines: Line[] = []
 
       if (!fs.existsSync(`dist-ass/${assFile}`)) {
@@ -75,14 +75,22 @@ export function runTrainsDataGenerate(video_filter_pattern: string, options: Cli
           .pipe(captureLines())
       }, { writeAss: false })
 
-      log('runCmds', runCmds)
+      log('runCmds', runCmds.map(cmd =>
+        Array.isArray(cmd)
+          ? `${cmd[0]} ${cmd[1].join(' ')}`
+          : cmd)
+      )
       log('lines', lines)
 
 
       bar.start(runCmds.length, 0)
       const limiter = new Bottleneck({ maxConcurrent: 6 })
       await Promise.all(runCmds.map(cmd => limiter.schedule(async () => {
-        await exec(cmd)
+        if (Array.isArray(cmd)) {
+          await exec(cmd[0], cmd[1])
+        } else {
+          await exec(cmd)
+        }
         bar.increment()
       })))
       bar.stop()

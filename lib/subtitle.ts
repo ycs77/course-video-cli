@@ -78,7 +78,11 @@ export async function handleSubtitle(
   rm(srtInputPath)
   rm(srtOutputPath)
 
-  await exec(`ffmpeg -i ${assInputPath} -c:s text ${srtInputPath}`)
+  await exec('ffmpeg', [
+    '-i', assInputPath,
+    '-c:s', 'text',
+    srtInputPath,
+  ])
 
   await new Promise<void>(resolve => {
     handle({
@@ -91,7 +95,10 @@ export async function handleSubtitle(
   if (writeAss) {
     rm(assOutputPath)
 
-    await exec(`ffmpeg -i ${srtOutputPath} ${assOutputPath}`)
+    await exec('ffmpeg', [
+      '-i', srtOutputPath,
+      assOutputPath,
+    ])
   }
 
   rm(srtInputPath)

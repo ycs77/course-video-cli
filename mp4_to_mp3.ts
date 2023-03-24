@@ -18,7 +18,11 @@ export function runMp4ToMp3(video_filter_pattern: string, options: CliOptions) {
 
       rm(`dist-mp3/${f(file).ext('mp3')}`)
 
-      await exec(`ffmpeg -i dist/${file} dist-mp3/${f(file).ext('mp3')}`)
+      await exec('ffmpeg', [
+        '-i',
+        `dist/${file}`,
+        `dist-mp3/${f(file).ext('mp3')}`,
+      ])
 
     },
   })
