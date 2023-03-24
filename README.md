@@ -67,7 +67,7 @@ cli/tool.ts sub:generate
 cli/tool.ts sub:correct
 ```
 
-### 合併字幕
+### 影片合併字幕
 
 ```bash
 cli/tool.ts sub:merge
