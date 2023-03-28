@@ -1,4 +1,5 @@
 import fs from 'fs'
+import 'colors'
 import Bottleneck from 'bottleneck'
 import { map, resync } from 'subtitle'
 import { videoBatch } from './lib/video_batch'
@@ -6,7 +7,6 @@ import { mustBeExist, mkdir, hasContent } from './lib/fs'
 import { f } from './lib/filename'
 import { exec } from './lib/process'
 import { modifySubtitle, assToSrt, srtToAss } from './lib/subtitle'
-import 'colors'
 import type { CliOptions } from './lib/types'
 
 export interface Line {

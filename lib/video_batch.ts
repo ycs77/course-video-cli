@@ -1,7 +1,7 @@
 import fs from 'fs'
+import 'colors'
 import Bottleneck from 'bottleneck'
 import { SingleBar } from 'cli-progress'
-import 'colors'
 import progressbar from './progressbar'
 import { createTimer } from './timer'
 import { formatTotalTime } from './output'

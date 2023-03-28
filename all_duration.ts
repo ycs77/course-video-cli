@@ -1,8 +1,8 @@
 import fs from 'fs'
+import 'colors'
 import Bottleneck from 'bottleneck'
 import { getDuration } from './lib/duration'
 import { formatTotalTime } from './lib/output'
-import 'colors'
 
 export function runAllDuration() {
   fs.readdir(process.cwd(), async (err, files) => {

@@ -1,10 +1,10 @@
+import 'colors'
 import { videoBatch } from './lib/video_batch'
 import { mkdir, rename, mustBeNotExist } from './lib/fs'
 import { f } from './lib/filename'
 import { createSubtitle, modifySubtitle, transformFormatSrt, srtToAss } from './lib/subtitle'
 import type { CliOptions } from './lib/types'
 import type { SubtitleDrivers } from './lib/subtitle/types'
-import 'colors'
 
 export interface RunSubGenerateOptions extends CliOptions {
   driver: keyof SubtitleDrivers
