@@ -3,17 +3,27 @@ import 'colors'
 import Bottleneck from 'bottleneck'
 import { getDuration } from './lib/duration'
 import { formatTotalTime } from './lib/output'
+import { SubtitleError } from './lib/error'
 
 export function runAllDuration() {
   fs.readdir(process.cwd(), async (err, files) => {
 
     const limiter = new Bottleneck({ maxConcurrent: 8 })
 
-    const all_videos_time = await Promise.all(
-      files
-        .filter(file => /\.mp4$/.test(file))
-        .map(file => limiter.schedule(() => getDuration(file)))
-    )
+    let all_videos_time: number[] = []
+
+    try {
+      all_videos_time = await Promise.all(
+        files
+          .filter(file => /\.mp4$/.test(file))
+          .map(file => limiter.schedule(() => getDuration(file)))
+      )
+    } catch (err) {
+      if (err instanceof SubtitleError) {
+        console.log()
+        console.error(`${err.message}`.red)
+      }
+    }
 
     const seconds = all_videos_time.reduce((carry, s) => carry + s, 0)
 

@@ -1,5 +1,5 @@
 import fs from 'fs'
-import 'colors'
+import { SubtitleError } from './error'
 
 export function mkdir(path: string) {
   if (!fs.existsSync(path)) {
@@ -37,15 +37,13 @@ export function hasContent(path: string) {
 export function mustBeExist(path: string) {
   if (!fs.existsSync(path)) {
     console.log()
-    console.error(`${path} does not exist`.red)
-    process.exit(1)
+    throw new SubtitleError(`${path} does not exist`)
   }
 }
 
 export function mustBeNotExist(path: string) {
   if (fs.existsSync(path)) {
     console.log()
-    console.error(`${path} does exist`.red)
-    process.exit(1)
+    throw new SubtitleError(`${path} does exist`)
   }
 }

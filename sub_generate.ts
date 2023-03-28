@@ -1,8 +1,8 @@
-import 'colors'
 import { videoBatch } from './lib/video_batch'
 import { mkdir, rename, mustBeNotExist } from './lib/fs'
 import { f } from './lib/filename'
 import { createSubtitle, modifySubtitle, transformFormatSrt, srtToAss } from './lib/subtitle'
+import { SubtitleError } from './lib/error'
 import type { CliOptions } from './lib/types'
 import type { SubtitleDrivers } from './lib/subtitle/types'
 
@@ -14,13 +14,11 @@ export interface RunSubGenerateOptions extends CliOptions {
 
 export function runSubGenerate(video_filter_pattern: string, options: RunSubGenerateOptions) {
   if (!['autosub', 'whisper'].includes(options.driver)) {
-    console.error(`error: \`driver\` option must be contains ${['autosub', 'whisper'].join(', ')}`.red)
-    return
+    throw new SubtitleError(`error: \`driver\` option must be contains ${['autosub', 'whisper'].join(', ')}`)
   }
 
   if (!['srt', 'ass'].includes(options.format)) {
-    console.error(`error: \`format\` option must be contains ${['srt', 'ass'].join(', ')}`.red)
-    return
+    throw new SubtitleError(`error: \`format\` option must be contains ${['srt', 'ass'].join(', ')}`)
   }
 
   videoBatch({ video_filter_pattern, options }, {

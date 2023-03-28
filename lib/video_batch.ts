@@ -5,6 +5,7 @@ import { SingleBar } from 'cli-progress'
 import progressbar from './progressbar'
 import { createTimer } from './timer'
 import { formatTotalTime } from './output'
+import { SubtitleError } from './error'
 import { debug, type LogPrinter } from './debug'
 import type { CliOptions } from './types'
 
@@ -59,12 +60,25 @@ export function videoBatch(cliParams: CliParams, options: VideoBatchOptions) {
     if (startProgress) bar.start(videos.length, 0)
     timer.start()
 
-    await Promise.all(
-      videos.map(file => limiter.schedule(async () => {
-        await handle({ file, bar, log })
-        if (startProgress) bar.increment()
-      }))
-    )
+    try {
+      await Promise.all(
+        videos.map(file => limiter.schedule(async () => {
+          await handle({ file, bar, log })
+          if (startProgress) bar.increment()
+        }))
+      )
+    } catch (err) {
+      if (err instanceof SubtitleError) {
+        console.log()
+        console.error(`${err.message}`.red)
+
+        timer.stop()
+        if (startProgress) bar.stop()
+        if (onStop) onStop()
+
+        return
+      }
+    }
 
     timer.stop()
     if (startProgress) bar.stop()
