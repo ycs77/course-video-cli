@@ -69,6 +69,12 @@ cli/tool.ts sub:generate
 cli/tool.ts sub:correct
 ```
 
+### 校正字幕常見錯字
+
+```bash
+cli/tool.ts sub:typo
+```
+
 ### 影片合併字幕
 
 ```bash

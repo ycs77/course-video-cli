@@ -17,7 +17,8 @@ export function createSubtitle<Driver extends keyof SubtitleDrivers, Instance = 
   return new Autosub(options) as Instance
 }
 
+export * from './types'
 export * from './autosub'
 export * from './whisper'
-export * from './types'
+export * from './typo'
 export * from './utils'

@@ -4,6 +4,7 @@ import { runMp4ToMp3 } from './mp4_to_mp3'
 import { runSubGenerate } from './sub_generate'
 import { runSubCorrect } from './sub_correct'
 import { runSubMerge } from './sub_merge'
+import { runSubTypo } from './sub_typo'
 import { runTrainsDataGenerate } from './trains_data_generate'
 
 export function run() {
@@ -49,6 +50,12 @@ export function run() {
     .command('sub:merge [video_filter_pattern]', 'Merge subtitles')
     .action((video_filter_pattern, options) => {
       runSubMerge(video_filter_pattern, options)
+    })
+
+  cli
+    .command('sub:typo [video_filter_pattern]', 'Fix subtitles typo')
+    .action((video_filter_pattern, options) => {
+      runSubTypo(video_filter_pattern, options)
     })
 
   cli
