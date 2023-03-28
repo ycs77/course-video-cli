@@ -32,6 +32,9 @@ export function run() {
 
   cli
     .command('sub:generate [video_filter_pattern]', 'Generate subtitles')
+    .option('--driver <driver>', 'Transcribe subtitle driver can select autosub / whisper', { default: 'whisper' })
+    .option('--format <format>', 'Subtitle format', { default: 'ass' })
+    .option('--prompt <prompt>', 'Whisper prompt')
     .action((video_filter_pattern, options) => {
       runSubGenerate(video_filter_pattern, options)
     })

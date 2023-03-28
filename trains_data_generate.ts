@@ -5,7 +5,7 @@ import { videoBatch } from './lib/video_batch'
 import { mustBeExist, mkdir, hasContent } from './lib/fs'
 import { f } from './lib/filename'
 import { exec } from './lib/process'
-import { modifySubtitle } from './lib/subtitle'
+import { modifySubtitle, assToSrt, srtToAss } from './lib/subtitle'
 import 'colors'
 import type { CliOptions } from './lib/types'
 
@@ -29,7 +29,6 @@ export function runTrainsDataGenerate(video_filter_pattern: string, options: Cli
     },
     async handle({ file, bar, log }) {
 
-      const assFile = `${f(file).ext('ass')}`
       const fileName = f(file).getName()
       const chapter = Number(fileName.split('-')[0])
       const section = Number(fileName.split('-')[1])
@@ -38,8 +37,8 @@ export function runTrainsDataGenerate(video_filter_pattern: string, options: Cli
       const runCmds: (string | [string, string[]])[] = []
       const lines: Line[] = []
 
-      if (!fs.existsSync(`dist-ass/${assFile}`)) {
-        console.log(`${assFile} can't record`.yellow)
+      if (!fs.existsSync(`dist-ass/${f(file).ext('ass')}`)) {
+        console.log(`${f(file).ext('ass')} can't record`.yellow)
         return
       }
 
@@ -69,11 +68,13 @@ export function runTrainsDataGenerate(video_filter_pattern: string, options: Cli
         })
       }
 
-      await modifySubtitle(assFile, stream => {
+      await assToSrt(`${f(file).ext('ass')}`)
+      await modifySubtitle(`${f(file).ext('srt')}`, stream => {
         return stream
           .pipe(resync(250))
           .pipe(captureLines())
-      }, { writeAss: false })
+      })
+      await srtToAss(`${f(file).ext('srt')}`, `../dist/${file}`)
 
       log('runCmds', runCmds.map(cmd =>
         Array.isArray(cmd)

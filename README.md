@@ -17,11 +17,13 @@ cd ..
 npm i tsx -g
 ```
 
-## 下載 autosub
+## 配置 Autosub
 
-下載 autosub 的 alpha-win-x64-nuitka.7z 檔案，解壓至當前 `cli` 專案資料夾下
+[到 Autosub 的下載頁面](https://github.com/BingLingGroup/autosub/releases/tag/0.5.7-alpha)下載 alpha-win-x64-nuitka.7z 檔案，解壓至當前 `cli` 專案資料夾下。
 
-https://github.com/BingLingGroup/autosub/releases/tag/0.5.7-alpha
+## 配置 whiaper
+
+先複製 `.env.example` 到 `.env`，然後設好 openai 的 API KEY。
 
 ## 專案架構
 
