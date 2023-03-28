@@ -16,6 +16,7 @@ export function run() {
     })
 
   cli.option('--log', 'Log debug message to stdout', { default: false })
+  cli.option('--log-spawn', 'Log spawn stdout', { default: false })
 
   cli
     .command('all:duration', 'Calc all videos duration')
