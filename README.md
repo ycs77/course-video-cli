@@ -49,11 +49,9 @@ cli/tool.ts all:duration
 
 ```bash
 cli/tool.ts mp4:mp3
-
-# 只轉換部分影片 (ex: 1-1.mp4 ~ 1-11.mp4)
+# 只轉換 1-1.mp4 ~ 1-11.mp4
 cli/tool.ts mp4:mp3 1-\\d+
-
-# 只轉換部分影片 (ex: 1-2.mp4 + 1-3.mp4 + 1-4.mp4)
+# 只轉換 1-2.mp4 + 1-3.mp4 + 1-4.mp4
 cli/tool.ts mp4:mp3 1-[234]
 ```
 
@@ -61,28 +59,53 @@ cli/tool.ts mp4:mp3 1-[234]
 
 ```bash
 cli/tool.ts sub:generate
+# 只轉換 1-1.mp4 ~ 1-11.mp4
+cli/tool.ts sub:generate 1-\\d+
+# 只轉換 1-2.mp4 + 1-3.mp4 + 1-4.mp4
+cli/tool.ts sub:generate 1-[234]
+
+# 預設使用 whisper 產生字幕，也可以使用 autosub (Google Speech-to-text)
+cli/tool.ts sub:generate --driver whisper
+# 預設輸出 ass 字幕，也可以指定 srt
+cli/tool.ts sub:generate --format ass
 ```
 
 ### 校正字幕時間軸
 
 ```bash
 cli/tool.ts sub:correct
+# 只轉換 1-1.mp4 ~ 1-11.mp4
+cli/tool.ts sub:correct 1-\\d+
+# 只轉換 1-2.mp4 + 1-3.mp4 + 1-4.mp4
+cli/tool.ts sub:correct 1-[234]
 ```
 
 ### 校正字幕常見錯字
 
 ```bash
 cli/tool.ts sub:typo
+# 只轉換 1-1.mp4 ~ 1-11.mp4
+cli/tool.ts sub:typo 1-\\d+
+# 只轉換 1-2.mp4 + 1-3.mp4 + 1-4.mp4
+cli/tool.ts sub:typo 1-[234]
 ```
 
 ### 影片合併字幕
 
 ```bash
 cli/tool.ts sub:merge
+# 只轉換 1-1.mp4 ~ 1-11.mp4
+cli/tool.ts sub:merge 1-\\d+
+# 只轉換 1-2.mp4 + 1-3.mp4 + 1-4.mp4
+cli/tool.ts sub:merge 1-[234]
 ```
 
 ### 建立機器學習用資料
 
 ```bash
 cli/tool.ts trains-data:generate
+# 只轉換 1-1.mp4 ~ 1-11.mp4
+cli/tool.ts trains-data:generate 1-\\d+
+# 只轉換 1-2.mp4 + 1-3.mp4 + 1-4.mp4
+cli/tool.ts trains-data:generate 1-[234]
 ```
