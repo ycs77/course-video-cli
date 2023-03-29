@@ -1,7 +1,7 @@
 import { videoBatch } from './lib/video_batch'
 import { mkdir, rename, mustBeNotExist } from './lib/fs'
 import { f } from './lib/filename'
-import { createSubtitle, modifySubtitle, transformFormatSrt, srtToAss } from './lib/subtitle'
+import { createSubtitle, modifySubtitle, transformFormatSrt, transformTypoSrt, srtToAss } from './lib/subtitle'
 import { SubtitleError } from './lib/error'
 import type { CliOptions } from './lib/types'
 import type { SubtitleDrivers } from './lib/subtitle/types'
@@ -44,6 +44,8 @@ export function runSubGenerate(video_filter_pattern: string, options: RunSubGene
 
       // 移動時間軸
       await modifySubtitle(`${f(file).ext('srt')}`, transformFormatSrt)
+      // 校正常見錯字
+      await modifySubtitle(`${f(file).ext('srt')}`, transformTypoSrt)
 
       if (options.format === 'ass') {
 
