@@ -1,8 +1,14 @@
 import 'colors'
 
-export function formatTotalTime(seconds: number, prefix?: string) {
-  const formatZero = (num: number, pow: number) => `${'0'.repeat(pow - String(num).length)}${num}`
+export function formatTotalTime(seconds: number, prefix: string = '') {
+  const formatNumber = (num: number, digites: number) => num.toString().padStart(digites, '0')
 
   console.log(`
-  ${prefix}${formatZero(Math.floor(seconds / 3600), 2)}:${formatZero(Math.floor(seconds % 3600 / 60), 2)}:${formatZero(seconds % 60, 2)}`.blue)
+  ${prefix}${
+    formatNumber(Math.floor(seconds / 3600), 2)
+  }:${
+    formatNumber(Math.floor(seconds % 3600 / 60), 2)
+  }:${
+    formatNumber(seconds % 60, 2)
+  }`.blue)
 }
