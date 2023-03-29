@@ -1,11 +1,11 @@
-# Lcuas 的 ffmpeg 輔助腳本
+# Lcuas 的課程影片輔助腳本
 
 需要事先安裝 Node.js、ffmpeg
 
 ## 下載專案
 
 ```bash
-git clone https://github.com/ycs77/ffmpeg-cli-utils cli
+git clone https://github.com/ycs77/course-video-cli.git cli
 cd cli
 yarn
 cd ..
