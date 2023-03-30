@@ -14,11 +14,11 @@ export interface RunSubGenerateOptions extends CliOptions {
 
 export function runSubGenerate(video_filter_pattern: string, options: RunSubGenerateOptions) {
   if (!['autosub', 'whisper'].includes(options.driver)) {
-    throw new SubtitleError(`error: \`driver\` option must be contains ${['autosub', 'whisper'].join(', ')}`)
+    throw new SubtitleError(`\`driver\` option must be contains ${['autosub', 'whisper'].join(', ')}`)
   }
 
   if (!['srt', 'ass'].includes(options.format)) {
-    throw new SubtitleError(`error: \`format\` option must be contains ${['srt', 'ass'].join(', ')}`)
+    throw new SubtitleError(`\`format\` option must be contains ${['srt', 'ass'].join(', ')}`)
   }
 
   videoBatch({ video_filter_pattern, options }, {

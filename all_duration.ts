@@ -22,6 +22,7 @@ export function runAllDuration() {
       if (err instanceof SubtitleError) {
         console.log()
         console.error(`${err.message}`.red)
+        return
       }
     }
 

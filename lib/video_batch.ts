@@ -60,6 +60,15 @@ export function videoBatch(cliParams: CliParams, options: VideoBatchOptions) {
     if (startProgress) bar.start(videos.length, 0)
     timer.start()
 
+    process.on('SIGINT', () => {
+      // on Ctrl+C
+      timer.stop()
+      if (startProgress) bar.stop()
+      if (onStop) onStop()
+
+      process.exit(1)
+    })
+
     try {
       await Promise.all(
         videos.map(file => limiter.schedule(async () => {

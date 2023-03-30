@@ -7,6 +7,7 @@ import { mustBeExist, mkdir, hasContent } from './lib/fs'
 import { f } from './lib/filename'
 import { exec } from './lib/process'
 import { modifySubtitle, assToSrt, srtToAss } from './lib/subtitle'
+import { SubtitleError } from './lib/error'
 import type { CliOptions } from './lib/types'
 
 export interface Line {
@@ -38,8 +39,7 @@ export function runTrainsDataGenerate(video_filter_pattern: string, options: Cli
       const lines: Line[] = []
 
       if (!fs.existsSync(`dist-ass/${f(file).ext('ass')}`)) {
-        console.log(`${f(file).ext('ass')} can't record`.yellow)
-        return
+        throw new SubtitleError(`${f(file).ext('ass')} can't record`.yellow)
       }
 
       function captureLines() {
